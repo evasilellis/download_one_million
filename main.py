@@ -1,11 +1,15 @@
 from downloader import download_samples
 
-#datasetfile = "one_million_sha256_part1"
+#datasetfile = "one_million_sha256_part2"
+from feature_extraction import sonification
+
 datasetfile = "testing"
 
 
-def main():
-    download_samples(datasetfile)
-
 if __name__ == "__main__":
-    main()
+    #download_samples(datasetfile)
+
+    try:
+        sonification()
+    except Exception as e:
+        print(f"Unexpected error: {e}")
