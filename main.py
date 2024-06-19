@@ -3,7 +3,7 @@ from downloader import download_samples
 #datasetfile = "one_million_sha256_part2"
 from feature_extraction import sonification
 
-datasetfile = "testing"
+#datasetfile = "testing"
 
 
 if __name__ == "__main__":
