@@ -4,7 +4,8 @@ from os import path
 from get_apk_from_androzoo import get_apk_from_androzoo
 from get_apk_from_virusshare import get_apk_from_virusshare
 
-api_key_androzoo = "7c4f122a42200d4792a79df70368065ad783676746c120a92031c53123003088" # EV's key
+#api_key_androzoo = "7c4f122a42200d4792a79df70368065ad783676746c120a92031c53123003088" # EV's key
+api_key_androzoo = "cdc31a7425300cf164c9067cc9e0b6c81ba17864ee0e5a37be3f6035f95884a5" # 3A's key
 api_key_virusshare = "9DZhK1uSMmgCdxwNHUIUc2Ju9E2vSW1l" # EV's key
 
 outdir = 'Dataset'

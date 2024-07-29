@@ -29,11 +29,11 @@ def get_download(tup):
     num_tries = 0
     while True:
         num_tries += 1
-        if num_tries > 3:
-            print("Three consecutive connexion errors, exiting")
+        if num_tries > 5:
+            print("Five consecutive connexion errors, exiting")
             exit()
         try:
-            response = requests.get(url, params=params)
+            response = requests.get(url, params=params)#, timeout=60)
             time.sleep(0.3)
         except requests.exceptions.ConnectionError:
             print("Connection Error, retrying in 1 minute")
