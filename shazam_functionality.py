@@ -44,10 +44,10 @@ def handle_data_labels(file_name, datasetfile):
 
     if hash in apk_samples['Hash'].values:
         # Retrieve the corresponding 'sample' value
-        sample = apk_samples.loc[apk_samples['Hash'] == hash, 'Sample'].values[0]
-        type = apk_samples.loc[apk_samples['Hash'] == hash, 'Type'].values[0]
-        family = apk_samples.loc[apk_samples['Hash'] == hash, 'Family'].values[0]
-        packed_sample = apk_samples.loc[apk_samples['Hash'] == hash, 'packed_sample'].values[0]
+        sample = apk_samples.loc[apk_samples['Hash'] == hash, 'Sample'].values[0] if not pd.isna(apk_samples.loc[apk_samples['Hash'] == hash, 'Sample'].values[0]) else ''
+        type = apk_samples.loc[apk_samples['Hash'] == hash, 'Type'].values[0] if not pd.isna(apk_samples.loc[apk_samples['Hash'] == hash, 'Type'].values[0]) else ''
+        family = apk_samples.loc[apk_samples['Hash'] == hash, 'Family'].values[0] if not pd.isna(apk_samples.loc[apk_samples['Hash'] == hash, 'Family'].values[0]) else ''
+        packed_sample = apk_samples.loc[apk_samples['Hash'] == hash, 'packed_sample'].values[0] if not pd.isna(apk_samples.loc[apk_samples['Hash'] == hash, 'packed_sample'].values[0]) else ''
 
     return np.array([hash, sample, type, family, packed_sample])
 

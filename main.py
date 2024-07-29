@@ -10,17 +10,21 @@ datasetfile = "CCCS-CIC-AndMal-2020"
 
 if __name__ == "__main__":
     #STEP 1
-    #download_samples(datasetfile)
+    """print("STEP 1: Downloading apps")
+    download_samples(datasetfile)"""
 
     #STEP 2
-    """try:
+    print("STEP 2: Filtering downloaded apps")
+    try:
         filter_downloaded_samples()
     except Exception as e:
-        print(f"Unexpected error: {e}")"""
+        print(f"Unexpected error: {e}")
 
 
     #STEP 3
-    #sonification()
+    print("STEP 3: Sonifying filtered apps")
+    sonification()
 
     #STEP 4
+    print("STEP 4: Extracting peaks from sonified apps")
     add_tracks_simplified(datasetfile)
