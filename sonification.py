@@ -101,18 +101,23 @@ def extract_data_section(apk_dir, dex_dir):
     for apk_file in apk_files:
         apk_path = os.path.join(apk_dir, apk_file)
 
-        with zipfile.ZipFile(apk_path) as apk:
-            with apk.open("classes.dex") as dex_in:
-                dex_data = dex_in.read()
+        try:
 
-                dataSection_file_name = os.path.splitext(apk_file)[0] + ".dex.data"
-                dataSection_file_path = os.path.join(dex_data_section_folder, dataSection_file_name)
+            with zipfile.ZipFile(apk_path) as apk:
+                with apk.open("classes.dex") as dex_in:
+                    dex_data = dex_in.read()
 
-                data_size = int.from_bytes(dex_data[0x68:0x6C], byteorder='little')
-                data_offset = int.from_bytes(dex_data[0x6C:0x70], byteorder='little')
+                    dataSection_file_name = os.path.splitext(apk_file)[0] + ".dex.data"
+                    dataSection_file_path = os.path.join(dex_data_section_folder, dataSection_file_name)
 
-                with open(dataSection_file_path, 'wb') as out_file:
-                    out_file.write(dex_data[data_offset:data_offset + data_size])
+                    data_size = int.from_bytes(dex_data[0x68:0x6C], byteorder='little')
+                    data_offset = int.from_bytes(dex_data[0x6C:0x70], byteorder='little')
+
+                    with open(dataSection_file_path, 'wb') as out_file:
+                        out_file.write(dex_data[data_offset:data_offset + data_size])
+
+        except (zipfile.BadZipFile, zlib.error) as e:
+            print(f"Error processing {apk_file}: {e}")
 
         progress_bar.update(1)
 
