@@ -42,12 +42,12 @@ def integrityCheck_singleDexFilter(apk_dir):
 
     for apk_file in apk_files:
         apk_path = os.path.join(apk_dir, apk_file)
-        """if not zipfile.is_zipfile(apk_path) or not apk_path.endswith(".apk"):
+        if not zipfile.is_zipfile(apk_path) or not apk_path.endswith(".apk"):
             progress_bar.update(1)
             with open(corrupted_apk_log, 'a') as fp:
                 fp.write(apk_file + '\n')
             num_apks_corrupted += 1
-            continue"""
+            continue
 
         with open(apk_path, "rb") as apk_data_file:
             apk_data = apk_data_file.read()

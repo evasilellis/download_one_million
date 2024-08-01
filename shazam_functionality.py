@@ -1,3 +1,5 @@
+import csv
+
 import soundfile as sf
 from scipy.signal import lfilter
 import cv2
@@ -18,58 +20,6 @@ wav_folder = datasetDir + '/' + '03 WAV files'
 csv_folder = datasetDir + '/' + '04 CSV files'
 
 data_peaks = []
-#data_hashes = []
-
-
-def create_maxes_table(maxes_data, file_name, datasetfile):
-    data_file = handle_data_labels(file_name, datasetfile)
-    final_data = np.append(data_file, maxes_data)
-    data_peaks.append(final_data)
-
-
-"""def create_hashes_table(hashes_data, file_name, datasetfile):
-    data_file = handle_data_labels(file_name, datasetfile)
-    final_data = np.append(data_file, hashes_data)
-    data_hashes.append(final_data) """
-
-
-def handle_data_labels(file_name, datasetfile):
-    apk_samples = pd.read_csv(datasetDir + '/' + datasetfile + '.csv')
-
-    hash = file_name.replace('.dex.data.wav', '')
-    sample = ''
-    type = ''
-    family = ''
-    packed_sample = ''
-
-    if hash in apk_samples['Hash'].values:
-        # Retrieve the corresponding 'sample' value
-        sample = apk_samples.loc[apk_samples['Hash'] == hash, 'Sample'].values[0] if not pd.isna(apk_samples.loc[apk_samples['Hash'] == hash, 'Sample'].values[0]) else ''
-        type = apk_samples.loc[apk_samples['Hash'] == hash, 'Type'].values[0] if not pd.isna(apk_samples.loc[apk_samples['Hash'] == hash, 'Type'].values[0]) else ''
-        family = apk_samples.loc[apk_samples['Hash'] == hash, 'Family'].values[0] if not pd.isna(apk_samples.loc[apk_samples['Hash'] == hash, 'Family'].values[0]) else ''
-        packed_sample = apk_samples.loc[apk_samples['Hash'] == hash, 'packed_sample'].values[0] if not pd.isna(apk_samples.loc[apk_samples['Hash'] == hash, 'packed_sample'].values[0]) else ''
-
-    return np.array([hash, sample, type, family, packed_sample])
-
-
-def prepare_data():
-    header_peaks = ['Hash', 'Sample', 'Type', 'Family', 'packed_sample']
-    df_peaks = pd.DataFrame(data_peaks)
-    columns_number = (len(df_peaks.axes[1]) - len(header_peaks)) / 2
-    for element in range(0, int(columns_number)):
-        header_peaks.append('part_' + str(element) + '_x')
-        header_peaks.append('part_' + str(element) + '_y')
-
-    """header_hashes = ['Hash', 'Sample', 'Type', 'Family', 'packed_sample']
-    df_hashes = pd.DataFrame(data_hashes)
-    columns_number = (len(df_hashes.axes[1]) - len(header_hashes))
-    for element in range(0, int(columns_number)):
-        header_hashes.append('hash_' + str(element))
-
-    return [df_peaks, header_peaks, df_hashes, header_hashes]"""
-
-    return [df_peaks, header_peaks]
-
 
 def compare_magnitude(S, specific_value):
     # compare the magnitude of each element in the array S with a specific value
@@ -136,7 +86,6 @@ def find_landmarks(song_data, dilate_size):
     # ALTERNATIVELY, we could get the time and the frequency
     # corresponding to each row and column and store it {e.g. maxes = [F(I), T(J)'];}
     maxes = np.transpose(np.array([I, J]))
-    final_maxes = handle_table(maxes)
 
     """##PAIRING THE MAXES
     # Now that we have the maxes, it's time to pair them.
@@ -179,7 +128,7 @@ def find_landmarks(song_data, dilate_size):
     L = L[:pairs, :]
 
     return L, final_maxes"""
-    return final_maxes
+    return maxes.tolist()
 
 
 """def landmark2hash(L):
@@ -207,6 +156,11 @@ def add_tracks_simplified(datasetfile):
     start_overall_time = time.time()  # Start timing for overall processing
     processing_times = []  # List to store individual processing times
 
+    apk_samples = pd.read_csv(datasetDir + '/' + datasetfile + '.csv')
+
+    create_folder(csv_folder)
+    data = []  # List to collect all the processed data
+
     dilate_size = [20, 20]
     length_folder = len([name for name in os.listdir(wav_folder) if os.path.isfile(os.path.join(wav_folder, name))])
     s = np.empty(length_folder, dtype=object)
@@ -231,7 +185,38 @@ def add_tracks_simplified(datasetfile):
         processing_time = time.time() - start_time  # End timing for individual track processing
         processing_times.append(processing_time)  # Store the processing time
 
-        create_maxes_table(maxes, name, datasetfile)
+        hash = name.replace('.dex.data.wav', '')
+        if hash in apk_samples['Hash'].values:
+            # Retrieve the corresponding 'sample' value
+            sample = apk_samples.loc[apk_samples['Hash'] == hash, 'Sample'].values[0] if not pd.isna(
+                apk_samples.loc[apk_samples['Hash'] == hash, 'Sample'].values[0]) else ''
+            type = apk_samples.loc[apk_samples['Hash'] == hash, 'Type'].values[0] if not pd.isna(
+                apk_samples.loc[apk_samples['Hash'] == hash, 'Type'].values[0]) else ''
+            family = apk_samples.loc[apk_samples['Hash'] == hash, 'Family'].values[0] if not pd.isna(
+                apk_samples.loc[apk_samples['Hash'] == hash, 'Family'].values[0]) else ''
+            packed_sample = apk_samples.loc[apk_samples['Hash'] == hash, 'packed_sample'].values[0] if not pd.isna(
+                apk_samples.loc[apk_samples['Hash'] == hash, 'packed_sample'].values[0]) else ''
+
+            # Collect the row data
+            data.append({
+                'Hash': hash,
+                'Sample': sample,
+                'Type': type,
+                'Family': family,
+                'packed_sample': packed_sample,
+                'Peaks': maxes
+            })
+
+    # Convert the collected data to a DataFrame
+    df = pd.DataFrame(data)
+
+    # Reset the index and rename it to 'sn'
+    df.reset_index(inplace=True)
+    df.rename(columns={'index': 'sn'}, inplace=True)
+
+    # Save the DataFrame to a compressed CSV file
+    csvPeaks_filename = datasetfile + '_peaks.csv.xz'
+    df.to_csv(os.path.join(csv_folder, csvPeaks_filename), sep='\t', encoding='utf-8', index=False, compression='xz')
 
     """"# Calculate and print statistics
     avg_processing_time = mean(processing_times)
@@ -258,35 +243,6 @@ def add_tracks_simplified(datasetfile):
         ax.text(bin_center, count, f"{int(count)}", ha='center', va='bottom')
     plt.savefig('Peak extraction duration distribution.png')
     plt.close() """
-
-    # After processing all songs, prepare to save results
-    """"[df_peaks, header_peaks, df_hashes, header_hashes] = prepare_data()"""
-    [df_peaks, header_peaks] = prepare_data()
-
-    csvPeaks_filename = datasetfile + '_peaks.csv.xz'
-    # Insert 'sn' at the beginning of the list
-    header_peaks.insert(0, 'sn')
-    # Add a new column with incremental numbers as indices
-    df_peaks.insert(0, 'IndexColumn', range(len(df_peaks)))
-    df_peaks.to_csv(os.path.join(csv_folder, csvPeaks_filename), header=header_peaks, encoding='utf-8', index=False,
-                    compression='xz')
-
-    """csvHashes_filename = datasetfile + '_hashes.csv.xz'
-    # Insert 'sn' at the beginning of the list
-    header_hashes.insert(0, 'sn')
-    # Add a new column with incremental numbers as indices
-    df_hashes.insert(0, 'IndexColumn', range(len(df_hashes)))
-    df_hashes.to_csv(os.path.join(csv_folder, csvHashes_filename), header=header_hashes, encoding='utf-8', index=False, compression='xz') """
-
-
-def handle_table(array):
-    new_array = []
-    create_folder(csv_folder)
-    for element in array:
-        new_array.append(element[0])
-        new_array.append(element[1])
-    return np.array(new_array)
-
 
 def audio_fingerprinting(datasetfile):
     add_tracks_simplified(datasetfile)
