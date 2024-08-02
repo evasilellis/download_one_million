@@ -87,7 +87,7 @@ def get_apk_from_androzoo(api_key, hash_file, output_dir):
     print("Number of workers: {}".format(NUM_WORKERS))
 
     # Read the CSV file skipping the header and extracting only the first column
-    column_to_extract = 'sha256'  # Replace with the actual column name
+    column_to_extract = 'Hash'  # Replace with the actual column name
     data = pd.read_csv(hash_file, usecols=[column_to_extract])
 
     # Convert the column values to a list
