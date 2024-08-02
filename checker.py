@@ -63,11 +63,11 @@ def integrityCheck_singleDexFilter(apk_dir):
                         with open(multi_dex_log, 'a') as fp:
                             fp.write(apk_file + '\n')
                     else:
-                        num_single_dex += 1
-                        with open(single_dex_log, 'a') as fp:
-                            fp.write(apk_file + '\n')
                         try:
                             with apk.open("classes.dex") as dex_in:
+                                num_single_dex += 1
+                                with open(single_dex_log, 'a') as fp:
+                                    fp.write(apk_file + '\n')
                                 dex_data = dex_in.read()
 
                             extracted_alder32_checksum = hex(int.from_bytes(dex_data[0x08:0x0C], byteorder='little'))
